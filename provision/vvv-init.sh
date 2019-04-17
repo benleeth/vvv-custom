@@ -20,41 +20,6 @@ mkdir -p ${VVV_PATH_TO_SITE}/log
 touch ${VVV_PATH_TO_SITE}/log/nginx-error.log
 touch ${VVV_PATH_TO_SITE}/log/nginx-access.log
 
-# Install and configure the latest stable version of WordPress
-if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-load.php" ]]; then
-    echo "Downloading WordPress..."
-	noroot wp core download --version="${WP_VERSION}"
-fi
-
-if [[ ! -f "${VVV_PATH_TO_SITE}/public_html/wp-config.php" ]]; then
-  echo "Configuring WordPress Stable..."
-  noroot wp core config --dbname="${DB_NAME}" --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
-define('WP_DEBUG', true);
-define('SCRIPT_DEBUG', true);
-//disable WP Post Revisions
-define('AUTOSAVE_INTERVAL', 300); // seconds
-define('WP_POST_REVISIONS', false);
-PHP
-fi
-
-if ! $(noroot wp core is-installed); then
-  echo "Installing WordPress Stable..."
-
-  if [ "${WP_TYPE}" = "subdomain" ]; then
-    INSTALL_COMMAND="multisite-install --subdomains"
-  elif [ "${WP_TYPE}" = "subdirectory" ]; then
-    INSTALL_COMMAND="multisite-install"
-  else
-    INSTALL_COMMAND="install"
-  fi
-
-  noroot wp core ${INSTALL_COMMAND} --url="${DOMAIN}" --quiet --title="${SITE_TITLE}" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
-else
-  echo "Updating WordPress Stable..."
-  cd ${VVV_PATH_TO_SITE}/public_html
-  noroot wp core update --version="${WP_VERSION}"
-fi
-
 cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
 if [ -n "$(type -t is_utility_installed)" ] && [ "$(type -t is_utility_installed)" = function ] && `is_utility_installed core tls-ca`; then
