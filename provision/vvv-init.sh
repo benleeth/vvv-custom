@@ -2,10 +2,6 @@
 # Provision WordPress Stable
 
 # fetch the first host as the primary domain. If none is available, generate a default using the site name
-DOMAIN=`get_primary_host "${VVV_SITE_NAME}".test`
-SITE_TITLE=`get_config_value 'site_title' "${DOMAIN}"`
-WP_VERSION=`get_config_value 'wp_version' 'latest'`
-WP_TYPE=`get_config_value 'wp_type' "single"`
 DB_NAME=`get_config_value 'db_name' "${VVV_SITE_NAME}"`
 DB_NAME=${DB_NAME//[\\\/\.\<\>\:\"\'\|\?\!\*-]/}
 
@@ -19,6 +15,9 @@ echo -e "\n DB operations done.\n\n"
 mkdir -p ${VVV_PATH_TO_SITE}/log
 touch ${VVV_PATH_TO_SITE}/log/nginx-error.log
 touch ${VVV_PATH_TO_SITE}/log/nginx-access.log
+
+# Create public_html directory
+mkdir -p ${VVV_PATH_TO_SITE}/public_html
 
 cp -f "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf.tmpl" "${VVV_PATH_TO_SITE}/provision/vvv-nginx.conf"
 
